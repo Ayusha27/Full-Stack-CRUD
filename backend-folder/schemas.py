@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from typing import List, Optional
 from datetime import date
 
@@ -30,31 +30,29 @@ class ProgramResponse(ProgramCreate):
 # --- APPLICANT SCHEMAS ---
 
 class ApplicantBase(BaseModel):
-    name: str
+    name: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
-    phone: str
+    phone: str = Field(..., pattern=r'^\d{10}$')
     category: str
     entry_type: str
     quota_type: str
     program_id: int
     gender: str
-    dob: date  # Pydantic will expect "YYYY-MM-DD"
+    dob: date
     address: str
-    marks_10th: float
-    marks_12th: float
+    marks_10th: float = Field(..., ge=0, le=100)
+    marks_12th: float = Field(..., ge=0, le=100)
     parent_name: str
     blood_group: str
-    document_status: str = "Pending"
-    fee_paid: bool = False
-
+    document_status: str
+    fee_paid: bool
 
 class ApplicantCreate(ApplicantBase):
-    """Schema for incoming POST requests"""
+    """Used for POST requests - inherits all fields from Base"""
     pass
 
-
 class ApplicantResponse(ApplicantBase):
-    """Schema for outgoing API responses"""
+    """Used for GET responses - adds the ID and generated Admission Number"""
     id: int
     admission_number: Optional[str] = None
 

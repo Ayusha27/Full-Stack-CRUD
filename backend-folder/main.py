@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from starlette.middleware.cors import CORSMiddleware
 from database import engine, Base, get_db
 import models, schemas, crud
 
@@ -10,7 +11,14 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Admission Management System")
 
-
+# for CORS ERROR
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"], # Allows your React app
+    allow_credentials=True,
+    allow_methods=["*"], # This allows OPTIONS, POST, GET, etc.
+    allow_headers=["*"], # This allows Content-Type, Authorization, etc.
+)
 @app.post("/programs/", response_model=schemas.ProgramResponse)  # Link the schema here
 def create_program(program: schemas.ProgramCreate, db: Session = Depends(get_db)):
     db_program = models.Program(
