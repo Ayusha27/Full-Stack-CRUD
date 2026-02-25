@@ -1,10 +1,10 @@
 from typing import List
-
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from database import engine, Base, get_db
 import models, schemas, crud
+from agent import get_chat_response
 
 # This creates the tables in your Postgres DB automatically
 models.Base.metadata.create_all(bind=engine)
@@ -66,3 +66,10 @@ def search_students(name: str = None, adm_no: str = None, db: Session = Depends(
     if adm_no:
         query = query.filter(models.Applicant.admission_number == adm_no)
     return query.all()
+
+# Create the endpoint
+@app.post("/chat")
+async def chat_endpoint(chat_msg: schemas.ChatMessage):
+    # Call the function from your agent.py file
+    bot_response = get_chat_response(chat_msg.message)
+    return {"response": bot_response}

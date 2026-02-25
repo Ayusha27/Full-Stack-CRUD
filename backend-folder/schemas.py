@@ -57,3 +57,7 @@ class ApplicantResponse(ApplicantBase):
     admission_number: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+# Define the data structure for the incoming request
+class ChatMessage(BaseModel):
+    message: str
