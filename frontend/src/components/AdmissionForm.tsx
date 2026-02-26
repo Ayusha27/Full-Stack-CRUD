@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import axios from 'axios';
 import { Applicant, Program } from '../types';
+import { API_BASE_URL } from '../config';
 
 interface Props { onSuccess: () => void; }
 
@@ -33,7 +34,7 @@ const AdmissionForm: React.FC<Props> = ({ onSuccess }) => {
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const res = await axios.get<Program[]>('http://127.0.0.1:8001/programs');
+        const res = await axios.get<Program[]>(`${API_BASE_URL}/programs`);
         setPrograms(res.data);
         if (res.data.length > 0) {
           setFormData(prev => ({ ...prev, program_id: res.data[0].id }));
@@ -59,7 +60,7 @@ const AdmissionForm: React.FC<Props> = ({ onSuccess }) => {
 
     setIsSubmitting(true);
     try {
-      await axios.post('http://127.0.0.1:8001/allocate/', formData);
+      await axios.post(`${API_BASE_URL}/allocate/`, formData);
       setFormData({ ...initialFormState, program_id: programs[0]?.id || 0 });
       onSuccess();
       alert("Student Allocated Successfully!");
