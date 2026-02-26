@@ -7,11 +7,11 @@ import os
 # If you didn't set a password, leave the ':password' part out.
 # SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/admission_db")
 # SQLALCHEMY_DATABASE_URL = "postgresql://postgres:ayusha.nayak@db.urcaqrxanwygqitmumze.supabase.co:5432/postgres"
-# SQLALCHEMY_DATABASE_URL = os.getenv(
-#     "DATABASE_URL",
-#     "postgresql://postgres:ayusha.nayak@db.urcaqrxanwygqitmumze.supabase.co:5432/postgres?sslmode=require"
-# )
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:ayusha.nayak@db.urcaqrxanwygqitmumze.supabase.co:6543/postgres?sslmode=require"
+SQLALCHEMY_DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres:ayusha.nayak@db.urcaqrxanwygqitmumze.supabase.co:5432/postgres?sslmode=require"
+)
+# SQLALCHEMY_DATABASE_URL = "postgresql://postgres:ayusha.nayak@db.urcaqrxanwygqitmumze.supabase.co:6543/postgres?sslmode=require"
 
 # database.py
 engine = create_engine(

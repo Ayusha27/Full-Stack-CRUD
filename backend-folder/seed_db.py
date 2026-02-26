@@ -1,7 +1,7 @@
+from database import SessionLocal, engine
 import models
-from database import SessionLocal, engine  # Ensure engine is imported
 
-# Ensure tables are created in Supabase before seeding
+# Ensure tables exist
 models.Base.metadata.create_all(bind=engine)
 
 UNIVERSITY_DATA = [
@@ -11,28 +11,21 @@ UNIVERSITY_DATA = [
         "course_type": "Undergraduate",
         "institution_name": "REVA University",
         "campus_name": "Main Campus",
-        "total_intake": 120  # Updated to 120 for realistic quota math
+        "total_intake": 120
     }
 ]
 
-
 def seed():
-    # Use the SessionLocal you defined in database.py
     db = SessionLocal()
     try:
-        print("🌱 Seeding university data and seat matrix...")
+        print("🌱 Seeding Supabase with university data...")
         for item in UNIVERSITY_DATA:
-            # 1. Check if Program exists
-            program = db.query(models.Program).filter(
-                models.Program.code == item["code"]
-            ).first()
-
+            program = db.query(models.Program).filter_by(code=item["code"]).first()
             if not program:
                 program = models.Program(**item)
                 db.add(program)
                 db.flush()
 
-                # 2. Define Quotas
             quotas = [
                 {"type": "KCET", "seats": int(item["total_intake"] * 0.4)},
                 {"type": "COMEDK", "seats": int(item["total_intake"] * 0.3)},
@@ -40,12 +33,9 @@ def seed():
             ]
 
             for q in quotas:
-                # Use .filter().first() to check if already seeded
                 exists = db.query(models.SeatMatrix).filter_by(
-                    program_id=program.id,
-                    quota_type=q["type"]
+                    program_id=program.id, quota_type=q["type"]
                 ).first()
-
                 if not exists:
                     db.add(models.SeatMatrix(
                         program_id=program.id,
@@ -53,11 +43,13 @@ def seed():
                         total_seats=q["seats"],
                         filled_seats=0
                     ))
-
         db.commit()
-        print("Database and Seat Matrix successfully seeded to Supabase!")
+        print("Success! Check your Supabase Table Editor.")
     except Exception as e:
         db.rollback()
-        print(f"Error seeding database: {e}")
+        print(f"Error: {e}")
     finally:
         db.close()
+
+if __name__ == "__main__":
+    seed()
