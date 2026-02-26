@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { SeatMatrix } from '../types';
+import { API_BASE_URL } from '../config';
 
 interface Props {
   refreshKey: number;
@@ -13,7 +14,7 @@ const Dashboard: React.FC<Props> = ({ refreshKey }) => {
   useEffect(() => {
     const fetchSeats = async () => {
       try {
-        const response = await axios.get<SeatMatrix[]>('http://127.0.0.1:8001/dashboard/seats');
+        const response = await axios.get<SeatMatrix[]>(`${API_BASE_URL}/dashboard/seats`);
         // Ensure we always set an array
         setSeats(Array.isArray(response.data) ? response.data : []);
       } catch (err) {

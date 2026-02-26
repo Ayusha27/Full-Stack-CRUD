@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import { Applicant } from '../types';
+import { API_BASE_URL } from '../config';
 
 const StudentSearch: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -12,7 +13,7 @@ const StudentSearch: React.FC = () => {
     if (!query.trim()) return;
     setLoading(true);
     try {
-      const response = await axios.get<Applicant[]>(`http://127.0.0.1:8001/applicants/search?name=${query}`);
+      const response = await axios.get<Applicant[]>(`${API_BASE_URL}/applicants/search?name=${query}`);
       setResults(response.data);
     } catch (error) {
       console.error("Search error", error);
@@ -24,7 +25,7 @@ const StudentSearch: React.FC = () => {
   const handleConfirm = async (id: number) => {
   try {
     // This calls the confirm logic we wrote for the backend
-    await axios.post(`http://127.0.0.1:8001/applicants/${id}/confirm`);
+    await axios.post(`${API_BASE_URL}/applicants/${id}/confirm`);
     alert("Admission Confirmed!");
     handleSearch(); // Refresh results
   } catch (error: any) {

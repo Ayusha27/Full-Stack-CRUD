@@ -1,6 +1,7 @@
 import axios from "axios";
 import exp from "constants";
 import { useState } from "react";
+import { API_BASE_URL } from "../config";
 
 const Chatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,7 @@ const Chatbot: React.FC = () => {
     setIsLoading(true); // Start loading when user sends a message
  
     try {
-    const res = await axios.post("http://127.0.0.1:8001/chat", { message: input });
+    const res = await axios.post(`${API_BASE_URL}/chat`, { message: input });
     setMessages(prev => [...prev, { text: res.data.response, isBot: true }]);
   } finally {
     setIsLoading(false); // Stop loading
