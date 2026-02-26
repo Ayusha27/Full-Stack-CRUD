@@ -13,14 +13,21 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Admission Management System")
 
-# for CORS ERROR
+# List of allowed origins
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://admitproai-react-app-nine.vercel.app/",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://admitproai-react-app-nine.vercel.app/"], # For local use, use localhost:3000
+    allow_origins=["*"], #for testing purpose
     allow_credentials=True,
-    allow_methods=["*"], # This allows OPTIONS, POST, GET, etc.
-    allow_headers=["*"], # This allows Content-Type, Authorization, etc.
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
 @app.post("/programs/", response_model=schemas.ProgramResponse)  # Link the schema here
 def create_program(program: schemas.ProgramCreate, db: Session = Depends(get_db)):
     db_program = models.Program(
