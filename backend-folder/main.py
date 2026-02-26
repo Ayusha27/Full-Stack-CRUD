@@ -17,12 +17,12 @@ app = FastAPI(title="Admission Management System")
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://admitproai-react-app-nine.vercel.app/",
+    "https://admitproai-react-app-nine.vercel.app",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], #for testing purpose
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
