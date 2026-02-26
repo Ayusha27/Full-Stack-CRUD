@@ -12,14 +12,17 @@ SQLALCHEMY_DATABASE_URL = os.getenv(
 )
 # SQLALCHEMY_DATABASE_URL = "postgresql://postgres:ayusha.nayak@db.urcaqrxanwygqitmumze.supabase.co:6543/postgres?sslmode=require"
 
-# database.py
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    pool_size=10,            # Keep 10 connections ready
-    max_overflow=20,         # Allow 20 extra if busy
-    pool_pre_ping=True,      # Check connection before every query
-    pool_recycle=300,        # Refresh connections every 5 minutes (lower is safer for Render)
-    connect_args={"connect_timeout": 10} # Don't wait forever to connect
+    pool_size=10,
+    max_overflow=20,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    # The dictionary below is the standard way to pass SSL to psycopg2
+    connect_args={
+        "connect_timeout": 10,
+        "sslmode": "require"
+    }
 )
 
 # engine = create_engine(SQLALCHEMY_DATABASE_URL)
