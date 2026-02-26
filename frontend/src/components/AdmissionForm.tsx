@@ -1,47 +1,70 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import axios from 'axios';
-import { Applicant } from '../types';
+import { Applicant, Program } from '../types';
 
 interface Props { onSuccess: () => void; }
 
 const AdmissionForm: React.FC<Props> = ({ onSuccess }) => {
+  // 1. Initial State: Note we start program_id as 0 or empty until programs load
   const initialFormState: Applicant = {
-  name: '', 
-  email: '', 
-  phone: '', 
-  category: 'GM',
-  entry_type: 'Regular', 
-  quota_type: 'KCET', 
-  program_id: 1,
-  gender: 'Male', 
-  dob: '', 
-  address: '', 
-  marks_10th: 0,   // Ensure these are here
-  marks_12th: 0,   // Ensure these are here
-  parent_name: '', 
-  blood_group: 'O+',
-  document_status: 'Pending', 
-  fee_paid: false
-};
+    name: '',
+    email: '',
+    phone: '',
+    category: 'GM',
+    entry_type: 'Regular',
+    quota_type: 'KCET',
+    program_id: 0, // Will be set by dropdown
+    gender: 'Male',
+    dob: '',
+    address: '',
+    marks_10th: 0,
+    marks_12th: 0,
+    parent_name: '',
+    blood_group: 'O+',
+    document_status: 'Pending',
+    fee_paid: false
+  };
 
   const [formData, setFormData] = useState<Applicant>(initialFormState);
+  const [programs, setPrograms] = useState<Program[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 2. Fetch Programs from Master Setup (Requirement 2.1)
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const res = await axios.get<Program[]>('http://127.0.0.1:8001/programs');
+        setPrograms(res.data);
+        if (res.data.length > 0) {
+          setFormData(prev => ({ ...prev, program_id: res.data[0].id }));
+        }
+      } catch (err) {
+        console.error("Error fetching programs", err);
+      }
+    };
+    fetchPrograms();
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({ ...prev, [name]: type === 'number' ? parseFloat(value) : value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'number' ? parseFloat(value) : value
+    }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (formData.program_id === 0) return alert("Please select a program");
+
     setIsSubmitting(true);
     try {
       await axios.post('http://127.0.0.1:8001/allocate/', formData);
-      setFormData(initialFormState);
+      setFormData({ ...initialFormState, program_id: programs[0]?.id || 0 });
       onSuccess();
       alert("Student Allocated Successfully!");
-    } catch (error) {
-      alert("Error submitting form");
+    } catch (error: any) {
+      alert(error.response?.data?.detail || "Error submitting form");
     } finally {
       setIsSubmitting(false);
     }
@@ -53,8 +76,27 @@ const AdmissionForm: React.FC<Props> = ({ onSuccess }) => {
         <h2 className="text-xl font-bold text-white">Student Application Form</h2>
         <p className="text-blue-100 text-xs">Enter details to allocate a new seat</p>
       </div>
-      
+
       <form onSubmit={handleSubmit} className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* --- SECTION 1: TARGET PROGRAM --- */}
+        <div className="md:col-span-2 space-y-1 bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-300">
+          <label className="text-xs font-bold text-blue-600 uppercase">Select Program & Campus</label>
+          <select
+            name="program_id"
+            value={formData.program_id}
+            onChange={handleChange}
+            className="w-full bg-white border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {programs.map(p => (
+              <option key={p.id} value={p.id}>
+                [{p.code}] {p.name} - {p.campus_name} ({p.course_type})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* --- SECTION 2: PERSONAL DETAILS --- */}
         <div className="space-y-1">
           <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
           <input name="name" value={formData.name} placeholder="Full Name" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all" onChange={handleChange} required />
@@ -71,8 +113,37 @@ const AdmissionForm: React.FC<Props> = ({ onSuccess }) => {
         </div>
 
         <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-500 uppercase">Category</label>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="GM">General Merit (GM)</option>
+            <option value="SC">Scheduled Caste (SC)</option>
+            <option value="ST">Scheduled Tribe (ST)</option>
+            <option value="OBC">Other Backward Classes (OBC)</option>
+          </select>
+        </div>
+
+        <div className="space-y-1">
           <label className="text-xs font-bold text-slate-500 uppercase">Date of Birth</label>
           <input name="dob" value={formData.dob} type="date" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500" onChange={handleChange} required />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-500 uppercase">Gender</label>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
 
         <div className="space-y-1">
@@ -84,30 +155,31 @@ const AdmissionForm: React.FC<Props> = ({ onSuccess }) => {
           </select>
         </div>
 
-        {/* Academic Details Section */}
-<div className="space-y-1">
-  <label className="text-xs font-bold text-slate-500 uppercase">10th Standard Marks (%)</label>
-  <input 
-    name="marks_10th" 
-    type="number" 
-    value={formData.marks_10th} 
-    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500" 
-    onChange={handleChange} 
-    required 
-  />
-</div>
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-500 uppercase">Parent/Guardian Name</label>
+          <input name="parent_name" value={formData.parent_name} placeholder="Father/Mother Name" className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500" onChange={handleChange} required />
+        </div>
 
-<div className="space-y-1">
-  <label className="text-xs font-bold text-slate-500 uppercase">12th Standard Marks (%)</label>
-  <input 
-    name="marks_12th" 
-    type="number" 
-    value={formData.marks_12th} 
-    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500" 
-    onChange={handleChange} 
-    required 
-  />
-</div>
+        {/* --- SECTION 3: ACADEMICS --- */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-500 uppercase">10th Marks (%)</label>
+          <input name="marks_10th" type="number" step="0.01" value={formData.marks_10th} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500" onChange={handleChange} required />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-500 uppercase">12th Marks (%)</label>
+          <input name="marks_12th" type="number" step="0.01" value={formData.marks_12th} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500" onChange={handleChange} required />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-500 uppercase">Blood Group</label>
+          <select name="blood_group" value={formData.blood_group} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none" onChange={handleChange}>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="A+">A+</option>
+            <option value="B+">B+</option>
+          </select>
+        </div>
 
         <div className="md:col-span-2 space-y-1">
           <label className="text-xs font-bold text-slate-500 uppercase">Residential Address</label>

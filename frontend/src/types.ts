@@ -1,5 +1,6 @@
 // src/types.ts
 export interface Applicant {
+  id?: number;
   name: string;
   email: string;
   phone: string;
@@ -22,7 +23,30 @@ export interface Applicant {
 export interface SeatMatrix {
   id: number;
   program_id: number;
-  quota_type: string;
+  quota_type: 'KCET' | 'COMEDK' | 'Management';
   total_seats: number;
   filled_seats: number;
+  program?: Program; 
+}
+
+
+
+export interface Program {
+  id: number;
+  name: string;
+  code: string;
+  course_type: 'UG' | 'PG';
+  institution_name: string;
+  campus_name: string;
+  total_intake: number;
+}
+
+
+export interface DashboardStats {
+  intake_vs_admitted: {
+    total: number;
+    admitted: number;
+  };
+  remaining_seats: number;
+  fee_pending_count: number;
 }

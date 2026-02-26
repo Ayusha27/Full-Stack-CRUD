@@ -35,19 +35,26 @@ class Applicant(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     email = Column(String, unique=True)
-    category = Column(String)
-    quota_type = Column(String)
-    fee_paid = Column(Boolean, default=False)
-    document_status = Column(String, default="Pending")
-    admission_number = Column(String, unique=True, nullable=True)
-    phone = Column(String)
-    entry_type = Column(String)
+    phone = Column(String)  # Required for contact
+    category = Column(String)  # GM, SC, ST
+    quota_type = Column(String)  # KCET, COMEDK, Management
+    entry_type = Column(String)  # Regular, Lateral
+
+    # New Fields to match React interface
     gender = Column(String)
-    dob = Column(Date)
+    dob = Column(String)  # Or Date, but String is safer for simple ISO strings
     address = Column(String)
     marks_10th = Column(Float)
     marks_12th = Column(Float)
     parent_name = Column(String)
     blood_group = Column(String)
+
+    # Logic Fields
+    fee_paid = Column(Boolean, default=False)
+    document_status = Column(String, default="Pending")
+    admission_number = Column(String, unique=True, nullable=True)
+
+    # Relationships
     program_id = Column(Integer, ForeignKey("programs.id"))
+    program = relationship("Program")
 

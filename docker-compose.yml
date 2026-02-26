@@ -7,7 +7,7 @@ services:
     environment:
       # This pulls the values directly from your .env file
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
