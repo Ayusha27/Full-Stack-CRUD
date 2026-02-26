@@ -16,7 +16,7 @@ app = FastAPI(title="Admission Management System")
 # for CORS ERROR
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # Allows your React app
+    allow_origins=["https://admitproai-react-app-nine.vercel.app/"], # For local use, use localhost:3000
     allow_credentials=True,
     allow_methods=["*"], # This allows OPTIONS, POST, GET, etc.
     allow_headers=["*"], # This allows Content-Type, Authorization, etc.
