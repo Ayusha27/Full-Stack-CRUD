@@ -35,11 +35,20 @@ const Dashboard: React.FC<Props> = ({ refreshKey }) => {
           </tr>
         </thead>
         <tbody>
+          {/* Map through seats and calculate availability dynamically */}
           {/* The ?. prevents crashing if seats is null */}
           {seats?.map((s) => (
-            <tr key={s.id} className="border-t">
-              <td className="p-2 text-center">{s.quota_type}</td>
-              <td className="p-2 text-center font-bold text-blue-600">{s.filled_seats}</td>
+            <tr key={s.id} className="border-t hover:bg-slate-50 transition-colors">
+              <td className="p-3 text-center font-medium text-slate-700">
+                {s.quota_type}
+              </td>
+              <td className="p-3 text-center">
+                {/* Verification Logic: Total Capacity minus Filled Seats */}
+                <span className="font-bold text-green-600 text-lg">
+                  {s.total_seats - s.filled_seats}
+                </span>
+                <span className="text-slate-400 text-xs ml-1 uppercase">Available</span>
+              </td>
             </tr>
           ))}
         </tbody>
