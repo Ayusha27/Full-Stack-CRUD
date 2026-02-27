@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AdmissionForm from './components/AdmissionForm';
 import StudentSearch from './components/StudentSearch';
 import Dashboard from './components/Dashboard';
 import Chat from './components/Chat';
+import axios from 'axios';
+import { API_BASE_URL } from './config';
+import { Program } from './types';
 
 
 const App: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [programs, setPrograms] = useState<Program[]>([]);
+
+  // Fetch programs ONCE at the parent level
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const res = await axios.get<Program[]>(`${API_BASE_URL}/programs`);
+        setPrograms(res.data);
+      } catch (err) {
+        console.error("Error fetching programs", err);
+      }
+    };
+    fetchPrograms();
+  }, []);
 
   const handleSuccess = () => setRefreshKey(prev => prev + 1);
 
@@ -35,7 +52,7 @@ const App: React.FC = () => {
           
           <div className="lg:col-span-8 space-y-8">
             <section className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50">
-              <AdmissionForm onSuccess={handleSuccess} />
+              <AdmissionForm programs={programs} onSuccess={handleSuccess} />
             </section>
             
             <section className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50">
@@ -46,7 +63,7 @@ const App: React.FC = () => {
           <div className="lg:col-span-4">
             <aside className="sticky top-24 space-y-6">
               <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
-                <Dashboard refreshKey={refreshKey} />
+                <Dashboard programs={programs} refreshKey={refreshKey} />
               </div>
             </aside>
           </div>
